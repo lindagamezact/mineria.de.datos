@@ -127,4 +127,3 @@ def TE_AT(*op1):
     anova(agrupar,com)
 
 TE_AT(statistics.mean,statistics.median,statistics.variance,statistics.stdev,min,max)
-
