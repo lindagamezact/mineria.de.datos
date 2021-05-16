@@ -10,18 +10,19 @@ from statsmodels.stats.outliers_influence import summary_table
 from typing import Tuple, Dict
 import numpy as np
 
-
 def print_tabulate(df: pd.DataFrame):
     print(tabulate(df, headers=df.columns, tablefmt='github'))
 
 df_complete = pd.read_csv("C:/Users/linda/OneDrive/Documentos/LINDA GAMEZ/7MO SEMESTRE/MINERÍA DE DATOS/mineria.de.datos/cvs/Basic and safely managed sanitation services limpio.csv")
 
+#Funcion transformar la variable para poder hacer calculos 
 def transform_variable(df: pd.DataFrame, x:str)->pd.Series:
     if isinstance(df[x][0], int):
         return df[x] 
     else:
         return pd.Series([i for i in range(0, len(df[x]))])
 
+#Funcion para obtener resultados de regresion lineal 
 def linear_regressionF(df: pd.DataFrame, x:str, y: str)->Dict[str, float]:
     fixed_x = transform_variable(df, x)
     model= sm.OLS(df[y],sm.add_constant(fixed_x), alpha=0.1).fit()
@@ -31,6 +32,7 @@ def linear_regressionF(df: pd.DataFrame, x:str, y: str)->Dict[str, float]:
     r_2_t = pd.read_html(model.summary().tables[0].as_html(),header=None,index_col=None)[0]
     return {'m': coef.values[1], 'b': coef.values[0], 'r2': r_2_t.values[0][3], 'r2_adj': r_2_t.values[1][3], 'low_band': bands['[0.025'][0], 'hi_band': bands['0.975]'][0]}
 
+#Funcion para hacer el plot con el intervalo de confianza para el pronóstico 
 def plt_lr(df: pd.DataFrame, x:str, y: str, m: float, b: float, r2: float, r2_adj: float, low_band: float, hi_band: float, colors: Tuple[str,str]):
     fixed_x = transform_variable(df, x)
     df.plot(x=x,y=y, kind='scatter')
@@ -53,12 +55,12 @@ def TE_A(*op1):
     tit = "Regresión datos completos"
     tit2 = "Datos completos"
 
-    #Tabla para regresion lineal 
+    #Tabla para regresion lineal, se toma en cuenta solo el promedio del porcentaje de la población ya que es el más importante de todos (da mejor explicación de la info)
     lr_t = pd.DataFrame({"Anio":df_by_A['Anio'],"Promedio_del_%_de_pob":lis_op[0] } )
     print(tit.center(150,"*"))
     #print_tabulate(lr_t)
 
-    #Forecasting 
+    #Forecasting tomando en cuenta los todos los datos, solo separados por año
     a= linear_regressionF(lr_t, 'Anio', 'Promedio_del_%_de_pob')
     plt_lr(df=lr_t, x="Anio", y="Promedio_del_%_de_pob", colors=('orange', 'lime'), **a)
     plt.title(f'Forecasting {tit2}')
@@ -83,11 +85,12 @@ def TE_AR(*op1): #Año, region
     agrupar = "Region"
     aA = "AR" 
 
-    #Forecasting 
+    #Forecasting tomando en cuenta que se tiene la categoría de años y una extra (dividida por región) 
     for cat in set(com[agrupar]):
         grupo_lr = com[com[agrupar] == cat]
-        lr_t = pd.DataFrame({"Promedio_del_%_de_pob":grupo_lr["Promedio"]})
+        lr_t = pd.DataFrame({"Promedio_del_%_de_pob":grupo_lr["Promedio"]}) 
         lr_t.reset_index(inplace=True)
+        #lr_t data frame con solo el promedio del porcentaje de la población para las categorías que se toman en cuenta, es el estadistico más importante para los datos que se toman en cuenta
         print(cat.center(150,"*"))
         a= linear_regressionF(lr_t, 'Anio', 'Promedio_del_%_de_pob')
         plt_lr(df=lr_t, x="Anio", y="Promedio_del_%_de_pob", colors=('orange', 'lime'), **a)
@@ -113,11 +116,12 @@ def TE_AC(*op1):
     agrupar = "Categoria"
     aA = "AC"
 
-    #Forecasting 
+    #Forecasting tomando en cuenta que se tiene la categoría de años y una extra (dividida por tipo de categoría) 
     for cat in set(com[agrupar]):
         grupo_lr = com[com[agrupar] == cat]
-        lr_t = pd.DataFrame({"Promedio_del_%_de_pob":grupo_lr["Promedio"]})
+        lr_t = pd.DataFrame({"Promedio_del_%_de_pob":grupo_lr["Promedio"]}) 
         lr_t.reset_index(inplace=True)
+        #lr_t data frame con solo el promedio del porcentaje de la población para las categorías que se toman en cuenta, es el estadístico más importante para los datos que se toman en cuenta
         print(cat.center(150,"*"))
         a= linear_regressionF(lr_t, 'Anio', 'Promedio_del_%_de_pob')
         plt_lr(df=lr_t, x="Anio", y="Promedio_del_%_de_pob", colors=('orange', 'lime'), **a)
@@ -143,11 +147,12 @@ def TE_AT(*op1):
     agrupar = "Area"
     aA = "AT"
 
-    #Forecasting 
+    #Forecasting tomando en cuenta que se tiene la categoría de años y una extra (dividida por tipo de área) 
     for cat in set(com[agrupar]):
         grupo_lr = com[com[agrupar] == cat]
-        lr_t = pd.DataFrame({"Promedio_del_%_de_pob":grupo_lr["Promedio"]})
+        lr_t = pd.DataFrame({"Promedio_del_%_de_pob":grupo_lr["Promedio"]}) 
         lr_t.reset_index(inplace=True)
+        #lr_t data frame con solo el promedio del porcentaje de la población para las categorías que se toman en cuenta, es el estadístico más importante para los datos que se toman en cuenta
         print(cat.center(150,"*"))
         a= linear_regressionF(lr_t, 'Anio', 'Promedio_del_%_de_pob')
         plt_lr(df=lr_t, x="Anio", y="Promedio_del_%_de_pob", colors=('orange', 'lime'), **a)
