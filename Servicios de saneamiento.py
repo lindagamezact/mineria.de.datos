@@ -6,12 +6,17 @@ import pandas as pd
 from tabulate import tabulate
 import statistics
 import numpy as np
+from numpy.core.fromnumeric import size 
 
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
 from scipy.stats import shapiro
 from scipy.stats import bartlett
+import pingouin as pg
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
+import numbers
+import random 
 
 def print_tabulate(df: pd.DataFrame):
     print(tabulate(df, headers=df.columns, tablefmt='orgtbl'))
@@ -52,35 +57,96 @@ def plot_by_A(df: pd.DataFrame, cat:str,lar:str,ag:str,a:str)->None:
     plt.close()
 
 #Función para el ANOVA cuando la agrupacion se conforma de los años y 1 categoría más
-def anova(a:str,b:str,df:pd.DataFrame): 
-    modl = ols(f"{a} ~ {b}", data=df).fit()
+def anova(a:str,df:pd.DataFrame): 
+    print("*****ANOVA*****")
+    modl = ols(f"Promedio ~ {a}", data=df).fit()
     anova_df = sm.stats.anova_lm(modl, typ=2)
+    pvan = anova_df["PR(>F)"][0]
+    print(f"Obtuvimos un p valor de: {pvan}, por lo tanto:")
     if anova_df["PR(>F)"][0] < 0.05:
-        print(f"Estadistico: {a}")
-        print("El ANOVA nos dice que SI hay diferencias")
+        print("El ANOVA nos dice que SI hay diferencias en los promedios de los datos")
         #print(anova_df)
         # Prueba tukey
+        print("*Prueba Tukey*")
+        print("Ya que si hay diferencias se hace la Prueba Tukey y se obtuvieron los siguientes grupos con diferencias:")
+        tcomp = pairwise_tukeyhsd(endog=df['Promedio'], groups=df[a], alpha=0.05)
+        print(tcomp)
     else:
-        print(f"Estadistico: {a}")       
-        print("El ANOVA nos dice que NO hay diferencias")
+        #print("Estadistico: Promedio")       
+        print("El ANOVA nos dice que NO hay diferencias en los promedios de los datos")
         #print(anova_df)
     
+    print("***SUPUESTOS DEL ANOVA***")
     #Prueba Normalidad Shapiro-Wilk test
+    print("*Normalidad*")
     statSW,pSW = shapiro(modl.resid)
     print("Para el supuesto de normalidad se hizo el Shapiro-Wilk test y obtuvimos: ")
+    print(f"p-valor= {pSW}, por lo tanto:")
     if pSW < 0.05: 
-        print(f"Los residuales del estadístico <{a}> NO son normales")
-        #Levene´s test
+        print("La variable dependiente (residuales) NO se distribuye normalmente")
+        #Levene´s test Prueba de Homogeneidad
+        print("*Prueba de Homogeneidad*")
+        print("Ya que NO es normal se hizo el Levene´s test: ")
+        lev = pg.homoscedasticity(df,dv='Promedio',group=a,method='levene')
+        plev = lev.pval.values
+        print(f"Obtuvimos un p valor de: {plev}, por lo tanto:")
+        if plev < 0.05: 
+            print("NO hay homogeneidad de varianzas")
+        else: 
+            print("SI hay homogeneidad de varianzas")
     else: 
-        print(f"Los residuales del estadístico <{a}> SI son normales")
-        #Bartlett's test
-        #statB, pB = bartlett()
+        print("La variable dependiente (residuales) SI se distribuye normalmente")
+        #Bartlett's test Prueba de Homogeneidad
+        print("*Prueba de Homogeneidad*")
+        print("Ya que SI es normal se hizo el Bartlett's test: ")
+        bar = pg.homoscedasticity(df,dv='Promedio',group=a,method='bartlett')
+        pbar = bar.pval.values
+        print(f"Obtuvimos un p valor de: {pbar}, por lo tanto:")
+        if pbar < 0.05: 
+            print("NO hay homogeneidad de varianzas")
+        else: 
+            print("SI hay homogeneidad de varianzas")
 
-    #Prueba de Homogeneidad de Varianzas
-    #Bartlett’s test (para normales)
-    #Levene´s test (no normales)
+#Funcion para transformar para RL 
+def transform_variable(df: pd.DataFrame,x: str) -> pd.Series: 
+    if isinstance(df[x][0], int): 
+        return df[x]
+    else: 
+        return [i for i in range(0, len(df[x]))]
 
-    #Prueba de independencia
+#Funcion regresion lineal para solo la cat con años 
+def linear_regression(df:pd.DataFrame, x: str, y: str,t:str)-> None: 
+    fixed_x= transform_variable(df, x)
+    model = sm.OLS(df[y],sm.add_constant(fixed_x)).fit()  
+    print (model.summary())
+
+    coef=pd.read_html(model.summary().tables[1].as_html(),header=0,index_col=0)[0]['coef']
+    df.plot(x=x,y=y, kind='scatter')
+    plt.plot(df[x],[pd.DataFrame.mean(df[y]) for _ in range(0, len(df[x]))], color='orange')
+    plt.plot(df[x],[ coef.values[1] * x + coef.values[0] for x in range(0, len(df[x]))], color='red')
+    plt.xticks(df[x],rotation=90)
+    plt.title(t)
+    plt.xlabel("Años")
+    #plt.show()
+    plt.savefig(f"C:/Users/linda/OneDrive/Documentos/LINDA GAMEZ/7MO SEMESTRE/MINERÍA DE DATOS/mineria.de.datos/img2/RL_{t}.png",bbox_inches='tight')
+    plt.close()
+
+#Funcion regresion lineal para las que cuentan con categoría de año y una más 
+def linear_regression2(df:pd.DataFrame, x: str, y: str,a:str,b:str,c:str)-> None: 
+    fixed_x= transform_variable(df, x)
+    model = sm.OLS(df[y],sm.add_constant(fixed_x)).fit()  
+    print (model.summary())
+
+    coef=pd.read_html(model.summary().tables[1].as_html(),header=0,index_col=0)[0]['coef']
+    df.plot(x=x,y=y, kind='scatter')
+    plt.plot(df[x],[pd.DataFrame.mean(df[y]) for _ in range(0, len(df[x]))], color='bisque')
+    co=random.choice(( ['pink','red','orange','green','lime','salmon','maroon','aqua','olive','violet','navy','slateblue','peru','rosybrown']))
+    plt.plot(df[x],[ coef.values[1] * x + coef.values[0] for x in range(0, len(df[x]))], color=co)
+    plt.xticks(df[x],rotation=90)
+    plt.title(f"Regresión {a}: {c}")
+    plt.xlabel("Años")
+    plt.savefig(f"C:/Users/linda/OneDrive/Documentos/LINDA GAMEZ/7MO SEMESTRE/MINERÍA DE DATOS/mineria.de.datos/img2/RL_{b}_{a}_{c}.png",bbox_inches='tight')
+    plt.close()
 
 #-------------------------------------------------------------AC-----------------------------------------------------------------------------
 #AC es agrupación por año y categoría tomando en cuenta como dato numérico el porcentaje de la población que utiliza servicios de 
@@ -113,11 +179,19 @@ def TE_AC(*op1):
     for cat in set(com[agrupar]):
         for lar in com.columns[1:len(com.columns)]: 
             plot_by_A(com, cat,lar,agrupar,aA)
-    
-    #ANOVA para cada uno de los estadisticos considerados  
-    for an in com.columns[1:len(com.columns)]:
-        anova(an,agrupar,com)  
-    
+
+    #ANOVA para el promedio de los datos 
+    anova(agrupar,com)   
+
+    #Regresion lineal 
+    for cat in set(com[agrupar]):
+        grupo_lr = com[com[agrupar] == cat]
+        lr_t = pd.DataFrame({"Promedio_del_%_de_pob":grupo_lr["Promedio"]})
+        lr_t.reset_index(inplace=True)
+        print(cat.center(150,"*"))
+        print_tabulate(lr_t.head(5))
+        linear_regression2(lr_t,'Anio','Promedio_del_%_de_pob',agrupar,aA,cat)
+
 TE_AC(statistics.mean,statistics.median,statistics.variance,statistics.stdev,min,max)
 
 #-------------------------------------------------------------AR-----------------------------------------------------------------------------
@@ -152,10 +226,18 @@ def TE_AR(*op1): #Año, region
     for cat in set(com[agrupar]):
         for lar in com.columns[1:len(com.columns)]: 
             plot_by_A(com, cat,lar,agrupar,aA)
-    
-    #ANOVA para cada uno de los estadisticos considerados  
-    for an in com.columns[1:len(com.columns)]:
-        anova(an,agrupar,com)  
+
+    #ANOVA para el promedio de los datos 
+    anova(agrupar,com) 
+
+    #Regresion lineal 
+    for cat in set(com[agrupar]):
+        grupo_lr = com[com[agrupar] == cat]
+        lr_t = pd.DataFrame({"Promedio_del_%_de_pob":grupo_lr["Promedio"]})
+        lr_t.reset_index(inplace=True)
+        print(cat.center(150,"*"))
+        print_tabulate(lr_t.head(5))
+        linear_regression2(lr_t,'Anio','Promedio_del_%_de_pob',agrupar,aA,cat)
     
 TE_AR(statistics.mean,statistics.median,statistics.variance,statistics.stdev,min,max)
 
@@ -191,10 +273,18 @@ def TE_AT(*op1):
     for cat in set(com[agrupar]):
         for lar in com.columns[1:len(com.columns)]: 
             plot_by_A(com, cat,lar,agrupar,aA)
+    
+    #ANOVA para el promedio de los datos 
+    anova(agrupar,com) 
 
-    #ANOVA para cada uno de los estadisticos considerados
-    for an in com.columns[1:len(com.columns)]:
-        anova(an,agrupar,com)  
+    #Regresion lineal 
+    for cat in set(com[agrupar]):
+        grupo_lr = com[com[agrupar] == cat]
+        lr_t = pd.DataFrame({"Promedio_del_%_de_pob":grupo_lr["Promedio"]})
+        lr_t.reset_index(inplace=True)
+        print(cat.center(150,"*"))
+        print_tabulate(lr_t.head(5))
+        linear_regression2(lr_t,'Anio','Promedio_del_%_de_pob',agrupar,aA,cat)
 
 TE_AT(statistics.mean,statistics.median,statistics.variance,statistics.stdev,min,max)
 
@@ -224,6 +314,16 @@ def TE_A(*op1):
         plt.title(lar)
         graf.savefig(f"C:/Users/linda/OneDrive/Documentos/LINDA GAMEZ/7MO SEMESTRE/MINERÍA DE DATOS/mineria.de.datos/img/A_{lar}.png",bbox_inches='tight')
         plt.close()
+
+    tit = "Regresión datos completos"
+
+    #Tabla para regresion lineal 
+    lr_t = pd.DataFrame({"Anio":df_by_A['Anio'],"Promedio_del_%_de_pob":lis_op[0] } )
+    print(tit.center(150,"*"))
+    print_tabulate(lr_t)
+
+    #Regresion lineal 
+    linear_regression(lr_t, 'Anio', 'Promedio_del_%_de_pob',tit)
     
 TE_A(statistics.mean,statistics.median,statistics.variance,statistics.stdev,min,max)
 
@@ -268,27 +368,8 @@ def TE_abc(a:str,b:str,c:str):
             plt.savefig(f"C:/Users/linda/OneDrive/Documentos/LINDA GAMEZ/7MO SEMESTRE/MINERÍA DE DATOS/mineria.de.datos/img/{aA}_Promedio_bplt_{cat}_{c2}.png",bbox_inches='tight')
             plt.close()
 
-    if (a,b,c == 'Region de la OMS'): 
-        df_by_abc.rename(columns={"Region de la OMS":"Region"},inplace=True)
-        
-    if (a,b,c == 'Tipo del Area'): 
-        df_by_abc.rename(columns={"Tipo del Area":"Area"},inplace=True)
-
-    #ANOVA (no completo)
-    '''modl = ols(f'Promedio ~ Region:Pais', data=df_by_abc).fit()
-    anova_df = sm.stats.anova_lm(modl, typ=2)
-    if anova_df["PR(>F)"][0] < 0.05:
-        #print(f"Estadistico: {an}")
-        print("Hay diferencias")
-        print(anova_df)
-        # Prueba tukey
-        # imprimir los resultados
-    else:
-        #print(f"Estadistico: {an}")       
-        print("No hay diferencias")
-        print(anova_df)  '''
-
 TE_abc('Anio','Region de la OMS', 'Pais') 
+
 #Agrupación por año, región de la OMS y país. Contiene: 
 # Tabla donde se agrupa en cada año el promedio de los porcentajes que tiene cada país de cierta región sin tomar en cuenta el tipo de area ni
 #  la categoría en la que se encuentra.
