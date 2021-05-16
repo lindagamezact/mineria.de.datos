@@ -18,7 +18,7 @@ from statsmodels.stats.multicomp import pairwise_tukeyhsd
 def print_tabulate(df: pd.DataFrame):
     print(tabulate(df, headers=df.columns, tablefmt='github'))
 
-df_complete = pd.read_csv("C:/Users/linda/OneDrive/Documentos/LINDA GAMEZ/7MO SEMESTRE/MINERÍA DE DATOS/Datasets/Basic and safely managed sanitation services limpio.csv")
+df_complete = pd.read_csv("C:/Users/linda/OneDrive/Documentos/LINDA GAMEZ/7MO SEMESTRE/MINERÍA DE DATOS/mineria.de.datos/cvs/Basic and safely managed sanitation services limpio.csv")
 
 #Función para el ANOVA cuando la agrupacion se conforma de los años y 1 categoría más
 def anova(a:str,df:pd.DataFrame): 
