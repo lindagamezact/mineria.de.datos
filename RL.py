@@ -24,6 +24,7 @@ def transform_variable(df: pd.DataFrame,x: str) -> pd.Series:
     else: 
         return [i for i in range(0, len(df[x]))]
 
+#Funcion regresion lineal para solo la cat con años 
 def linear_regression(df:pd.DataFrame, x: str, y: str,t:str)-> None: 
     fixed_x= transform_variable(df, x)
     model = sm.OLS(df[y],sm.add_constant(fixed_x)).fit()  
@@ -40,6 +41,7 @@ def linear_regression(df:pd.DataFrame, x: str, y: str,t:str)-> None:
     plt.savefig(f"C:/Users/linda/OneDrive/Documentos/LINDA GAMEZ/7MO SEMESTRE/MINERÍA DE DATOS/mineria.de.datos/img2/RL_{t}.png",bbox_inches='tight')
     plt.close()
 
+#Funcion regresion lineal para las que cuentan con categoría de año y una más 
 def linear_regression2(df:pd.DataFrame, x: str, y: str,a:str,b:str,c:str)-> None: 
     fixed_x= transform_variable(df, x)
     model = sm.OLS(df[y],sm.add_constant(fixed_x)).fit()  
