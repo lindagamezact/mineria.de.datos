@@ -1,4 +1,10 @@
-#Servicios de saneamiento
+#Servicios de saneamiento 
+#Incluye: 
+#Data cleaning and parsing 
+#Descriptive statistics 
+#Data visualization 
+#Statistic test 
+#Linear models 
 
 import io 
 from bs4 import BeautifulSoup
@@ -157,6 +163,7 @@ def linear_regression2(df:pd.DataFrame, x: str, y: str,a:str,b:str,c:str)-> None
 #(Media/Mediana/Variación/Dispersión/Mínimo/Máximo) del porcentaje de la población de cierta categoría (usan al menos.../usan servicios de saneamiento...) en cierto año 
 
 def TE_AC(*op1): 
+    #Descriptive statistics--------------------------------------------------------
     lis_op=[] #Lista para juntar todos los estadisticos en un DataFrame
     for op in op1:
         df_by_AC = df_complete.groupby(["Anio","Categoria"])[["Porcentaje"]].aggregate(op)
@@ -171,6 +178,7 @@ def TE_AC(*op1):
     agrupar = "Categoria"
     aA = "AC"
 
+    #Data visualization ---------------------------------------------
     #Un estadístico por boxplot
     for lis in com.columns[1:len(com.columns)]:
         com.boxplot(lis,by=agrupar)
@@ -183,9 +191,11 @@ def TE_AC(*op1):
         for lar in com.columns[1:len(com.columns)]: 
             plot_by_A(com, cat,lar,agrupar,aA)
 
+    #Statistic test---------------------------------------------------
     #ANOVA para el promedio de los datos 
     anova(agrupar,com)   
 
+    #Linear models-----------------------------------------------------
     #Regresion lineal 
     for cat in set(com[agrupar]):
         grupo_lr = com[com[agrupar] == cat]
@@ -203,6 +213,7 @@ TE_AC(statistics.mean,statistics.median,statistics.variance,statistics.stdev,min
 #(Media/Mediana/Variación/Dispersión/Mínimo/Máximo) del porcentaje de la población de cierta región (Europa, America,...) en cierto año 
 
 def TE_AR(*op1): #Año, region
+    #Descriptive statistics--------------------------------------------------------
     lis_op=[] 
     for op in op1:
         df_by_AR = df_complete.groupby(["Anio","Region de la OMS"])[["Porcentaje"]].aggregate(op)
@@ -217,6 +228,7 @@ def TE_AR(*op1): #Año, region
     agrupar = "Region"
     aA = "AR"
 
+    #Data visualization ---------------------------------------------
     #Un estadístico por boxplot
     for lis in com.columns[1:len(com.columns)]:
         com.boxplot(lis,by=agrupar)
@@ -230,9 +242,11 @@ def TE_AR(*op1): #Año, region
         for lar in com.columns[1:len(com.columns)]: 
             plot_by_A(com, cat,lar,agrupar,aA)
 
+    #Statistic test---------------------------------------------------
     #ANOVA para el promedio de los datos 
     anova(agrupar,com) 
 
+    #Linear models-----------------------------------------------------
     #Regresion lineal 
     for cat in set(com[agrupar]):
         grupo_lr = com[com[agrupar] == cat]
@@ -250,6 +264,7 @@ TE_AR(statistics.mean,statistics.median,statistics.variance,statistics.stdev,min
 #(Media/Mediana/Variación/Dispersión/Mínimo/Máximo) del porcentaje de la población de cierto tipo de área (rural, urbano, total) en cierto año 
 
 def TE_AT(*op1): 
+    #Descriptive statistics--------------------------------------------------------
     lis_op=[] 
     for op in op1:
         df_by_AT = df_complete.groupby(["Anio","Tipo del Area"])[["Porcentaje"]].aggregate(op)
@@ -264,6 +279,7 @@ def TE_AT(*op1):
     agrupar = "Area"
     aA = "AT"
 
+    #Data visualization ---------------------------------------------
     #Un estadístico por boxplot
     for lis in com.columns[1:len(com.columns)]:
         com.boxplot(lis,by=agrupar)
@@ -277,9 +293,11 @@ def TE_AT(*op1):
         for lar in com.columns[1:len(com.columns)]: 
             plot_by_A(com, cat,lar,agrupar,aA)
     
+    #Statistic test---------------------------------------------------
     #ANOVA para el promedio de los datos 
     anova(agrupar,com) 
 
+    #Linear models-----------------------------------------------------
     #Regresion lineal 
     for cat in set(com[agrupar]):
         grupo_lr = com[com[agrupar] == cat]
@@ -298,6 +316,7 @@ TE_AT(statistics.mean,statistics.median,statistics.variance,statistics.stdev,min
 # de forma segura
       
 def TE_A(*op1): 
+    #Descriptive statistics--------------------------------------------------------
     lis_op=[] 
     for op in op1:
         df_by_A = df_complete.groupby(["Anio"])[["Porcentaje"]].aggregate(op)
@@ -309,6 +328,7 @@ def TE_A(*op1):
     com.set_index(df_by_A['Anio'], inplace=True)
     print_tabulate(com.head(8))
     
+    #Data visualization ---------------------------------------------    
     #Gráficas
     for lar in com.columns: 
         graf = plt.figure()
@@ -320,6 +340,7 @@ def TE_A(*op1):
 
     tit = "Regresión datos completos"
 
+    #Linear models-----------------------------------------------------
     #Tabla para regresion lineal 
     lr_t = pd.DataFrame({"Anio":df_by_A['Anio'],"Promedio_del_%_de_pob":lis_op[0] } )
     print(tit.center(150,"*"))
@@ -337,6 +358,7 @@ TE_A(statistics.mean,statistics.median,statistics.variance,statistics.stdev,min,
 # servicios de saneamiento gestionados de forma segura. La función también incluye las graficas necesarias para las agrupaciones. 
 def TE_abc(a:str,b:str,c:str): 
     
+    #Descriptive statistics--------------------------------------------------------
     df_by_abc = df_complete.groupby([a,b,c])[["Porcentaje"]].aggregate(statistics.mean)
     df_by_abc.reset_index(inplace=True)
     df_by_abc.set_index("Anio",inplace=True)
@@ -345,6 +367,7 @@ def TE_abc(a:str,b:str,c:str):
 
     aA = a[0]+b[0]+c[0]
 
+    #Data visualization ---------------------------------------------    
     #Una categoría de la agrupación por boxplot
     for cat in set(df_by_abc[b]):
         bp1 = df_by_abc[df_by_abc[b] == cat]
