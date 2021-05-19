@@ -21,6 +21,7 @@ import random
 def print_tabulate(df: pd.DataFrame):
     print(tabulate(df, headers=df.columns, tablefmt='orgtbl'))
 
+#------------------------------------------------------- Data cleaning and parsing -------------------------------------------------------------
 df = pd.read_csv("C:/Users/linda/OneDrive/Documentos/LINDA GAMEZ/7MO SEMESTRE/MINERÍA DE DATOS/mineria.de.datos/cvs/Basic and safely managed sanitation services.csv")
 #print_tabulate(df)
 df = df.drop(['Display Value'], axis=1)
@@ -38,6 +39,8 @@ df['Categoria'] = np.where(df['Indicador']=="Population using safely managed san
 df.to_csv("C:/Users/linda/OneDrive/Documentos/LINDA GAMEZ/7MO SEMESTRE/MINERÍA DE DATOS/mineria.de.datos/cvs/Basic and safely managed sanitation services limpio.csv", index=False)
 
 df_complete = pd.read_csv("C:/Users/linda/OneDrive/Documentos/LINDA GAMEZ/7MO SEMESTRE/MINERÍA DE DATOS/mineria.de.datos/cvs/Basic and safely managed sanitation services limpio.csv")
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------
 
 #Funcion para el formato del eje x (Años) de las gráficas
 def gxanio_format(df: pd.DataFrame): 
@@ -197,7 +200,7 @@ TE_AC(statistics.mean,statistics.median,statistics.variance,statistics.stdev,min
 #-------------------------------------------------------------AR-----------------------------------------------------------------------------
 #AR es agrupación por año y región de la OMS tomando en cuenta como dato numérico el porcentaje de la población que utiliza servicios de 
 #saneamiento gestionados de forma segura para el calculo de los estadísticos 
-#(Media/Mediana/Variación/Dispersión/Mínimo/Máximo) del porcentaje de la población de cierta región (usan al menos.../usan servicios de saneamiento...) en cierto año 
+#(Media/Mediana/Variación/Dispersión/Mínimo/Máximo) del porcentaje de la población de cierta región (Europa, America,...) en cierto año 
 
 def TE_AR(*op1): #Año, region
     lis_op=[] 
@@ -244,7 +247,7 @@ TE_AR(statistics.mean,statistics.median,statistics.variance,statistics.stdev,min
 #-------------------------------------------------------------AT-----------------------------------------------------------------------------
 #AT es agrupación por año y tipo de area tomando en cuenta como dato numérico el porcentaje de la población que utiliza servicios de 
 #saneamiento gestionados de forma segura para el calculo de los estadísticos 
-#(Media/Mediana/Variación/Dispersión/Mínimo/Máximo) del porcentaje de la población de cierta región (usan al menos.../usan servicios de saneamiento...) en cierto año 
+#(Media/Mediana/Variación/Dispersión/Mínimo/Máximo) del porcentaje de la población de cierto tipo de área (rural, urbano, total) en cierto año 
 
 def TE_AT(*op1): 
     lis_op=[] 

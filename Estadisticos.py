@@ -16,6 +16,11 @@ def print_tabulate(df: pd.DataFrame):
 
 df_complete = pd.read_csv("C:/Users/linda/OneDrive/Documentos/LINDA GAMEZ/7MO SEMESTRE/MINERÍA DE DATOS/mineria.de.datos/cvs/Basic and safely managed sanitation services limpio.csv")
 
+#-------------------------------------------------------------AC-----------------------------------------------------------------------------
+#AC es agrupación por año y categoría tomando en cuenta como dato numérico el porcentaje de la población que utiliza servicios de 
+# saneamiento gestionados de forma segura para el calculo de los estadísticos 
+#(Media/Mediana/Variación/Dispersión/Mínimo/Máximo) del porcentaje de la población de cierta categoría (usan al menos.../usan servicios de saneamiento...) en cierto año 
+
 def TE_AC(*op1): 
     lis_op=[] #Lista para juntar todos los estadisticos en un DataFrame
     for op in op1:
@@ -30,6 +35,11 @@ def TE_AC(*op1):
     print_tabulate(com.head(10))
 
 TE_AC(statistics.mean,statistics.median,statistics.variance,statistics.stdev,min,max)
+
+#-------------------------------------------------------------AR-----------------------------------------------------------------------------
+#AR es agrupación por año y región de la OMS tomando en cuenta como dato numérico el porcentaje de la población que utiliza servicios de 
+#saneamiento gestionados de forma segura para el calculo de los estadísticos 
+#(Media/Mediana/Variación/Dispersión/Mínimo/Máximo) del porcentaje de la población de cierta región (Europa, America,...) en cierto año 
 
 def TE_AR(*op1): #Año, region
     lis_op=[] 
@@ -46,6 +56,11 @@ def TE_AR(*op1): #Año, region
     
 TE_AR(statistics.mean,statistics.median,statistics.variance,statistics.stdev,min,max)
 
+#-------------------------------------------------------------AT-----------------------------------------------------------------------------
+#AT es agrupación por año y tipo de área tomando en cuenta como dato numérico el porcentaje de la población que utiliza servicios de 
+#saneamiento gestionados de forma segura para el calculo de los estadísticos 
+#(Media/Mediana/Variación/Dispersión/Mínimo/Máximo) del porcentaje de la población de cierto tipo de área (rural, urbano, total) en cierto año 
+
 def TE_AT(*op1): 
     lis_op=[] 
     for op in op1:
@@ -60,6 +75,12 @@ def TE_AT(*op1):
     print_tabulate(com.head(10))
 
 TE_AT(statistics.mean,statistics.median,statistics.variance,statistics.stdev,min,max)
+
+#-------------------------------------------------------------A-----------------------------------------------------------------------------
+#A es agrupación solo por año tomando en cuenta como dato numérico el porcentaje de la población que utiliza servicios de 
+# saneamiento gestionados de forma segura para el calculo de los estadísticos 
+#(Media/Mediana/Variación/Dispersión/Mínimo/Máximo) del porcentaje de la población que utiliza servicios de saneamiento gestionados 
+# de forma segura
 
 def TE_A(*op1): 
     lis_op=[] 
@@ -76,6 +97,12 @@ def TE_A(*op1):
     
 TE_A(statistics.mean,statistics.median,statistics.variance,statistics.stdev,min,max)
 
+#-------------------------------------------------------------ABC-----------------------------------------------------------------------------
+#ABC se refiere a que se pueden agregar 3 diferentes categorías 
+
+#TE_abc es una función donde se agrupan 3 diferentes categorías y se hace el calculo del promedio del porcentaje de la población que utiliza 
+# servicios de saneamiento gestionados de forma segura. 
+
 def TE_abc(a:str,b:str,c:str): 
     
     df_by_abc = df_complete.groupby([a,b,c])[["Porcentaje"]].aggregate(statistics.mean)
@@ -86,9 +113,9 @@ def TE_abc(a:str,b:str,c:str):
     #Data frame con estadístico (más significante)
     print_tabulate(df_by_abc.head(10))
  
-TE_abc('Anio','Region de la OMS', 'Pais') 
-TE_abc('Anio', 'Categoria', 'Region de la OMS')
-TE_abc('Anio', 'Categoria', 'Tipo del Area')
-TE_abc('Anio', 'Region de la OMS', 'Tipo del Area')
-TE_abc('Anio', 'Categoria', 'Pais')
+TE_abc('Anio','Region de la OMS', 'Pais') #Tomando en cuenta el año, la región y el país 
+TE_abc('Anio', 'Categoria', 'Region de la OMS') #Tomando en cuenta el año, la categoría y la región 
+TE_abc('Anio', 'Categoria', 'Tipo del Area') #Tomando en cuenta el año, la categoría y el tipo de área 
+TE_abc('Anio', 'Region de la OMS', 'Tipo del Area')  #Tomando en cuenta el año, la región y el tipo de área 
+TE_abc('Anio', 'Categoria', 'Pais') #Tomando en cuenta el año, la categoría y el país 
 
