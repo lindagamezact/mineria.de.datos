@@ -43,7 +43,7 @@ def normalize_distribution(dist: np.array, n: int)->np.array:
 #end_date = '2022-01-01'
 #date_range = pd.date_range(start=begin_date, end=end_date, freq='1D')
 #norm_dist = np.random.standard_normal(len(date_range))
-#sales = normalize_distribution(norm_dist, 1500*len(date_range))
+#sales = normalize_distribution(norm_dist, 1500*len(date_range)) #decidí multiplicar por 1500 para la media y así tener ventas un poco más altas
 #df = pd.DataFrame({'Fecha': date_range, 'Ventas': sales}) 
 #df.to_csv("C:/Users/linda/OneDrive/Documentos/LINDA GAMEZ/7MO SEMESTRE/MINERÍA DE DATOS/mineria.de.datos/cvs/sales.csv", index=False)
 
@@ -63,7 +63,7 @@ a = linear_regression(df, x,y)
 plt_lr(df=df, x=x, y=y, colors=('red', 'orange'), **a)
 a = linear_regression(df.tail(7), x,y)
 plt_lr(df=df.tail(7), x=x, y=y, colors=('peru', 'indianred'), **a)
-df_j = df[pd.to_datetime(df[x]).dt.dayofweek == 5]
+df_j = df[pd.to_datetime(df[x]).dt.dayofweek == 5] #en la imagen se ve mejor que si parece una regresión lineal 
 print_tabulate(df_j)
 a = linear_regression(df_j, x,y)
 plt_lr(df=df_j, x=x, y=y, colors=('slategrey', 'slategrey'), **a)
