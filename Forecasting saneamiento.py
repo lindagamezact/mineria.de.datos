@@ -52,15 +52,15 @@ def TE_A(*op1):
         "Mínimo":lis_op[4],"Máximo":lis_op[5]})
     com.set_index(df_by_A['Anio'], inplace=True)
 
-    tit = "Regresión datos completos"
+    tit = "Regresión datos completos" #titulos más que nada para diseño 
     tit2 = "Datos completos"
 
-    #Tabla para regresion lineal, se toma en cuenta solo el promedio del porcentaje de la población ya que es el más importante de todos (da mejor explicación de la info)
+    #Tabla para hacer regresion lineal, se toma en cuenta solo el promedio del porcentaje de la población ya que es el más importante de todos (da mejor explicación de la info)
     lr_t = pd.DataFrame({"Anio":df_by_A['Anio'],"Promedio_del_%_de_pob":lis_op[0] } )
     print(tit.center(150,"*"))
     #print_tabulate(lr_t)
 
-    #Forecasting tomando en cuenta los todos los datos, solo separados por año
+    #Forecasting tomando en cuenta todos los datos, solo separados por año
     a= linear_regressionF(lr_t, 'Anio', 'Promedio_del_%_de_pob')
     plt_lr(df=lr_t, x="Anio", y="Promedio_del_%_de_pob", colors=('orange', 'lime'), **a)
     plt.title(f'Forecasting {tit2}')
@@ -71,6 +71,9 @@ def TE_A(*op1):
 
 TE_A(statistics.mean,statistics.median,statistics.variance,statistics.stdev,min,max)
 
+#TODAS LAS FUNCIONES QUE TIENEN TE_A(NOMBRECAT) USAN LAS MISMAS FORMULAS, SOLO CAMBIAN LOS DATOS QUE CONTIENEN SEGUN LA CATEGORÍA
+
+#Función con año y región 
 def TE_AR(*op1): #Año, region
     lis_op=[] 
     for op in op1:
@@ -82,15 +85,15 @@ def TE_AR(*op1): #Año, region
         "Promedio":lis_op[0],"Mediana":lis_op[1],"Varianza":lis_op[2],"Desviación Estándar":lis_op[3],"Mínimo":lis_op[4],"Máximo":lis_op[5]})
     com.set_index(df_by_AR['Anio'], inplace=True)
 
-    agrupar = "Region"
+    agrupar = "Region" 
     aA = "AR" 
 
     #Forecasting tomando en cuenta que se tiene la categoría de años y una extra (dividida por región) 
-    for cat in set(com[agrupar]):
-        grupo_lr = com[com[agrupar] == cat]
+    for cat in set(com[agrupar]): #for para hacer gráficas de cada una de las subcategorías (ej. en región se tiene Americas, Europe,...)
+        grupo_lr = com[com[agrupar] == cat] 
         lr_t = pd.DataFrame({"Promedio_del_%_de_pob":grupo_lr["Promedio"]}) 
         lr_t.reset_index(inplace=True)
-        #lr_t data frame con solo el promedio del porcentaje de la población para las categorías que se toman en cuenta, es el estadistico más importante para los datos que se toman en cuenta
+        #lr_t es el data frame con solo el promedio del porcentaje de la población para las categorías que se toman en cuenta, es el estadistico más importante para los datos que se toman en cuenta
         print(cat.center(150,"*"))
         a= linear_regressionF(lr_t, 'Anio', 'Promedio_del_%_de_pob')
         plt_lr(df=lr_t, x="Anio", y="Promedio_del_%_de_pob", colors=('orange', 'lime'), **a)
@@ -102,6 +105,7 @@ def TE_AR(*op1): #Año, region
 
 TE_AR(statistics.mean,statistics.median,statistics.variance,statistics.stdev,min,max)
 
+#Función con año y categoría 
 def TE_AC(*op1): 
     lis_op=[] #Lista para juntar todos los estadisticos en un DataFrame
     for op in op1:
@@ -133,6 +137,7 @@ def TE_AC(*op1):
  
 TE_AC(statistics.mean,statistics.median,statistics.variance,statistics.stdev,min,max)
 
+#función con año y tipo de área 
 def TE_AT(*op1): 
     lis_op=[] 
     for op in op1:
