@@ -17,6 +17,7 @@ def get_cmap(n, name="hsv"):
     RGB color; the keyword argument name must be a standard mpl colormap name."""
     return plt.cm.get_cmap(name, n)
 
+#Grafico de dispersion de la clasificación de los datos
 def scatter_group_by(
     file_path: str, df: pd.DataFrame, x_column: str, y_column: str, label_column: str
 ):
@@ -27,9 +28,9 @@ def scatter_group_by(
         filter_df = df.query(f"{label_column} == '{label}'")
         ax.scatter(filter_df[x_column], filter_df[y_column], label=label, color=cmap(i))
     ax.legend()
-    plt.title("Clasificación")
-    plt.xlabel(x_column)
-    plt.ylabel(y_column)
+    plt.title("Clasificación") #Titulo 
+    plt.xlabel(x_column) #nombre/ etiqueta del eje x
+    plt.ylabel(y_column) #nombre/ etiqueta del eje y
     plt.savefig(file_path)
     plt.close()
 
@@ -51,13 +52,15 @@ def k_nearest_neightbors(
         for point_nearest in points_k_nearest
     ]
 
+#Leer el csv de los datos de tumor 
 df = pd.read_csv("C:/Users/linda/OneDrive/Documentos/LINDA GAMEZ/7MO SEMESTRE/MINERÍA DE DATOS/mineria.de.datos/cvs/tumor.csv")
 
-df['Tipo'] = np.where(df['diagnosis']=="M", 'Maligno', 'Benigno')
-df = df.drop(['diagnosis'], axis=1)
+df['Tipo'] = np.where(df['diagnosis']=="M", 'Maligno', 'Benigno') #crear nueva columna para que no diga solo M y B, sino Maligno y Benigno
+df = df.drop(['diagnosis'], axis=1) #quitar la columna que solo tiene M y B 
 #print_tabulate(df.head())
 #print(df.columns)
 
+#Crear DataFrame solo con los datos de X y Y acomodados junto con el tipo de tumor: 
 df_class= pd.DataFrame({"Tipo": df["Tipo"], "Lisura_Promedio": df["smoothness_mean"],"Compacidad_Promedio": df["compactness_mean"]})
 print_tabulate(df_class.head(30))
 
@@ -72,7 +75,7 @@ labels = [label for _, label in list_t]
 kn = k_nearest_neightbors(
     points,
     labels,
-    [np.array([.25, .16]), np.array([.05, .12]), np.array([.1, .1]), np.array([.08, .12]),np.array([.23, .10]),np.array([.05, .08]) ],
+    [np.array([.25, .16]), np.array([.05, .12]), np.array([.1, .1]), np.array([.08, .12]),np.array([.23, .10]),np.array([.05, .08]) ], #puntos que quisiera ver de que tipo lo clasifica
     3, #al quedar la gráfica muy pegada decidí poner k=3 (# chico) para que no tomara muchos puntos si estos ya estaban cerca (no tienen varianza muy alta)
 )
 
